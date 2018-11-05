@@ -3,6 +3,7 @@ import '../service/vertaal_service.dart';
 import '../widget/main_appbar.dart';
 
 class VertaalPage extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
@@ -10,24 +11,24 @@ class VertaalPage extends StatelessWidget {
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new MyHomePage(title: 'Italiaans App'),
+      home: new VertaalHomePage(title: 'Italiaans App'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+class VertaalHomePage extends StatefulWidget {
+  VertaalHomePage({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _MyHomePageState createState() => new _MyHomePageState();
+  _VertaalHomePageState createState() => new _VertaalHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _VertaalHomePageState extends State<VertaalHomePage> {
   bool _loaderIsActive = false;
   final myTextCtrl = TextEditingController();
-  String _text = "...";
+  String _text = ". ..";
 
   void _vertaal() async {
     setState(() {
@@ -41,7 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
- void _select(Choice choice) {
+  void _select(Choice choice) {
     // Causes the app to rebuild with the new _selectedChoice.
     setState(() {
       //_selectedChoice = choice;
@@ -50,9 +51,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
+  void dispose() {
+    myTextCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: buildMainAppBar(_select),
+      appBar: buildMainAppBar(context),
       body: new Center(
         child: new Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -62,7 +69,6 @@ class _MyHomePageState extends State<MyHomePage> {
               keyboardType: TextInputType.multiline,
               maxLines: 3,
               decoration: new InputDecoration(
-                  
                   border: new OutlineInputBorder(
                     borderRadius: const BorderRadius.all(
                       const Radius.circular(0.0),
@@ -90,12 +96,6 @@ class _MyHomePageState extends State<MyHomePage> {
         child: new Icon(Icons.add),
       ),
     );
-
-    @override
-    void dispose() {
-      myTextCtrl.dispose();
-      super.dispose();
-    }
   }
 }
 
