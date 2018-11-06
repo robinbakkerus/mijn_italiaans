@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../service/vertaal_service.dart';
+import '../service/tts_service.dart';
 import '../widget/main_appbar.dart';
 
 class VertaalPage extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
@@ -29,17 +29,24 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
   bool _loaderIsActive = false;
   final myTextCtrl = TextEditingController();
   String _text = "...";
+  // final TextToSpeech tts = new TextToSpeech();
 
   void _vertaal() async {
     setState(() {
       _loaderIsActive = true;
     });
+
     var response = VertaalService.vertaal(myTextCtrl.text);
-    response.then((response) => _text = response.toString());
+    response.then((response) => _handleVertaling(response));
 
     setState(() {
       _loaderIsActive = false;
     });
+  }
+
+  void _handleVertaling(var response) {
+    _text = response.toString();
+    // tts.speak(_text);
   }
 
   @override
