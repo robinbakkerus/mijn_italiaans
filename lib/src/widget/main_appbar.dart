@@ -1,56 +1,60 @@
 import 'package:flutter/material.dart';
 import 'homepage.dart';
 import 'vertaal.dart';
+import 'explore.dart';
 
-AppBar buildMainAppBar(BuildContext context) {
+class Choice {
+  const Choice({this.title, this.icon});
+  final String title;
+  final IconData icon;
+}
+
+const List<Choice> choices = const <Choice>[
+  const Choice(title: '/home', icon: Icons.home),
+  const Choice(title: '/vertaal', icon: Icons.input),
+  const Choice(title: '/explore', icon: Icons.explore),
+  const Choice(title: 'Bus', icon: Icons.directions_bus),
+  const Choice(title: 'Train', icon: Icons.directions_railway),
+  const Choice(title: 'Walk', icon: Icons.directions_walk),
+];
+
+AppBar buildMainAppBar(BuildContext context, int disableButton) {
   void _select(Choice choice) {
     print("** " + choice.title);
 
-    if (choice.title == '/home') {
-      if (Navigator.of(context).canPop()) {
-        Navigator.of(context).pop();
-      } else {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => HomePage()),
-        );
-      }
-    } else if (choice.title == '/vertaal') {
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
+
+    if (choice.title == '/vertaal') {
       Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => VertaalPage()),
-      );
+          context, MaterialPageRoute(builder: (context) => VertaalPage()));
+    } else if (choice.title == '/explore') {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => ExplorePage()));
+    } else {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => HomePage()));
     }
   }
 
-  var onPressed0 =  _select(choices[0]);
-  var onPressed1 =  _select(choices[1]);
-  var onPressed2 =  _select(choices[2]);
+  bool _isButtonDisabled(int n) => n==disableButton;
+
+  IconButton _buildButton(int n) {
+      return new  IconButton(
+        icon: Icon(choices[n].icon),
+        onPressed: _isButtonDisabled(n) ? null : () {
+          _select(choices[n]);
+        } ,
+      );
+  }
 
   return new AppBar(
     title: new Text("Mi Italia"),
     actions: <Widget>[
-      IconButton(
-        icon: Icon(choices[0].icon),
-        onPressed: () {
-          _select(choices[0]);
-        },
-      ),
-      IconButton(
-        
-        icon: Icon(choices[1].icon),
-        onPressed: () {
-          _select(choices[1]);
-        },
-      ),
-      IconButton(
-        icon: Icon(choices[2].icon),
-        onPressed : null,
-        // onPressed: () {
-        //   _select(choices[2]);
-        // },
-      ),
-      // overflow menu
+      _buildButton(0),
+      _buildButton(1),
+      _buildButton(2),
       PopupMenuButton<Choice>(
         onSelected: _select,
         itemBuilder: (BuildContext context) {
@@ -65,19 +69,3 @@ AppBar buildMainAppBar(BuildContext context) {
     ],
   );
 }
-
-class Choice {
-  const Choice({this.title, this.icon});
-
-  final String title;
-  final IconData icon;
-}
-
-const List<Choice> choices = const <Choice>[
-  const Choice(title: '/home', icon: Icons.home),
-  const Choice(title: '/vertaal', icon: Icons.input),
-  const Choice(title: 'explore', icon: Icons.explore),
-  const Choice(title: 'Bus', icon: Icons.directions_bus),
-  const Choice(title: 'Train', icon: Icons.directions_railway),
-  const Choice(title: 'Walk', icon: Icons.directions_walk),
-];

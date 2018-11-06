@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import '../service/vertaal_service.dart';
 import '../widget/main_appbar.dart';
 
-class VertaalPage extends StatelessWidget {
+class ExplorePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
@@ -11,36 +10,24 @@ class VertaalPage extends StatelessWidget {
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new VertaalHomePage(title: 'Italiaans App'),
+      home: new ExploreHomePage(title: 'Italiaans App'),
     );
   }
 }
 
-class VertaalHomePage extends StatefulWidget {
-  VertaalHomePage({Key key, this.title}) : super(key: key);
+class ExploreHomePage extends StatefulWidget {
+  ExploreHomePage({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _VertaalHomePageState createState() => new _VertaalHomePageState();
+  _ExploreHomePageState createState() => new _ExploreHomePageState();
 }
 
-class _VertaalHomePageState extends State<VertaalHomePage> {
+class _ExploreHomePageState extends State<ExploreHomePage> {
   bool _loaderIsActive = false;
   final myTextCtrl = TextEditingController();
   String _text = "...";
-
-  void _vertaal() async {
-    setState(() {
-      _loaderIsActive = true;
-    });
-    var response = VertaalService.vertaal(myTextCtrl.text);
-    response.then((response) => _text = response.toString());
-
-    setState(() {
-      _loaderIsActive = false;
-    });
-  }
 
   @override
   void dispose() {
@@ -51,7 +38,7 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: buildMainAppBar(context, 1),
+      appBar: buildMainAppBar(context, 2),
       body: new Center(
         child: new Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -83,15 +70,10 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
         ),
       ),
       floatingActionButton: new FloatingActionButton(
-        onPressed: _vertaal,
+        onPressed: null,
         tooltip: 'Vertaal',
         child: new Icon(Icons.add),
       ),
     );
   }
 }
-
-/*
-https://translate.googleapis.com/translate_a/single?client=gtx&sl=nl&tl=it&dt=t&q=goedemorgen" 
-            + sourceLang + "&tl=" + targetLang + "&dt=t&q=" + encodeURI(sourceText);
-*/

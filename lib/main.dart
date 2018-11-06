@@ -13,10 +13,6 @@ class App extends StatelessWidget {
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
-      // routes: <String, WidgetBuilder>{
-      //   '/home': (BuildContext context) => new HomePage(),
-      //   '/vertaal': (BuildContext context) => new VertaalPage(),
-      // },
       home: new HomePage(),
     );
   }

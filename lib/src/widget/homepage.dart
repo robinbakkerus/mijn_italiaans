@@ -7,7 +7,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return new Scaffold(
-        appBar: buildMainAppBar(context),
+        appBar: buildMainAppBar(context, -1),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
