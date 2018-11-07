@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import '../widget/main_appbar.dart';
-import '../service/dbs_service.dart';
-
+import '../service/vertaling_presenter.dart';
+import '../model/vertaling.dart';
 
 class ExplorePage extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
@@ -12,13 +11,13 @@ class ExplorePage extends StatelessWidget {
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new ExploreHomePage(title: 'Italiaans App'),
+      home: new _ExploreHomePage(title: 'Italiaans App'),
     );
   }
 }
 
-class ExploreHomePage extends StatefulWidget {
-  ExploreHomePage({Key key, this.title}) : super(key: key);
+class _ExploreHomePage extends StatefulWidget {
+  _ExploreHomePage({Key key, this.title}) : super(key: key);
 
   final String title;
 
@@ -26,56 +25,79 @@ class ExploreHomePage extends StatefulWidget {
   _ExploreHomePageState createState() => new _ExploreHomePageState();
 }
 
-class _ExploreHomePageState extends State<ExploreHomePage> {
-  bool _loaderIsActive = false;
-  final myTextCtrl = TextEditingController();
-  String _text = "...";
+class _ExploreHomePageState extends State<_ExploreHomePage>
+    implements HomeContract {
+  List<Vertaling> vertalingen;
+  HomePresenter homePresenter;
 
   @override
-  void dispose() {
-    myTextCtrl.dispose();
-    super.dispose();
+  State<StatefulWidget> createState() {
+    super.initState();
+    homePresenter = new HomePresenter(this);
   }
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: buildMainAppBar(context, 2),
-      body: new Center(
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            new TextField(
-              style: TextStyle(fontSize: 25.0, color: Colors.blue),
-              keyboardType: TextInputType.multiline,
-              maxLines: 3,
-              decoration: new InputDecoration(
-                  border: new OutlineInputBorder(
-                    borderRadius: const BorderRadius.all(
-                      const Radius.circular(0.0),
-                    ),
-                    borderSide: new BorderSide(
-                      color: Colors.black,
-                      width: 1.0,
+      appBar: buildMainAppBar(context, 1),
+      body: new ListView.builder(
+          itemCount: vertalingen == null ? 0 : vertalingen.length,
+          itemBuilder: (BuildContext context, int index) {
+            return new Card(
+              child: new Container(
+                  child: new Center(
+                    child: new Row(
+                      children: <Widget>[
+                        new CircleAvatar(
+                          radius: 30.0,
+                          child: new Text('todo'),
+                          backgroundColor: const Color(0xFF20283e),
+                        ),
+                        new Expanded(
+                          child: new Padding(
+                            padding: EdgeInsets.all(10.0),
+                            child: new Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                new Text(
+                                  vertalingen[index].words +
+                                      " " +
+                                      vertalingen[index].translated,
+                                  // set some style to text
+                                  style: new TextStyle(
+                                      fontSize: 20.0,
+                                      color: Colors.lightBlueAccent),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        new Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            new IconButton(
+                              icon: const Icon(Icons.delete_forever,
+                                  color: const Color(0xFF167F67)),
+                              onPressed: () =>
+                                  homePresenter.delete(vertalingen[index]),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  hintText: "Voer tekst in om te vertalen.."),
-              controller: myTextCtrl,
-            ),
-            new Text(
-              '$_text',
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: new FloatingActionButton(
-        onPressed: null,
-        tooltip: 'Vertaal',
-        child: new Icon(Icons.add),
-      ),
+                  padding: const EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0)),
+            );
+          }),
     );
+  }
+
+  displayRecord() {
+    homePresenter.updateScreen();
+  }
+
+  @override
+  void screenUpdate() {
+    setState(() {});
   }
 }

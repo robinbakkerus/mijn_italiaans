@@ -1,7 +1,7 @@
 import 'dart:convert'; // for parsing JSON strings
 import 'package:http/http.dart' as http;
 
-const oneSecond = Duration(seconds: 1);
+const oneSecond = Duration(seconds: 3);
 
 const String URL =
     'https://translate.googleapis.com/translate_a/single?client=gtx&sl=nl&tl=it&dt=t&q=%s';

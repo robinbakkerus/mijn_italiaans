@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../service/vertaal_service.dart';
 import '../service/tts_service.dart';
 import '../widget/main_appbar.dart';
+import '../service/dbs_service.dart';
+import '../model/vertaling.dart';
 
 class VertaalPage extends StatelessWidget {
   @override
@@ -20,6 +22,7 @@ class VertaalHomePage extends StatefulWidget {
   VertaalHomePage({Key key, this.title}) : super(key: key);
 
   final String title;
+  
 
   @override
   _VertaalHomePageState createState() => new _VertaalHomePageState();
@@ -30,6 +33,12 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
   final myTextCtrl = TextEditingController();
   String _text = "...";
   // final TextToSpeech tts = new TextToSpeech();
+  DatabaseHelper _db = new DatabaseHelper();
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   void _vertaal() async {
     setState(() {
@@ -47,6 +56,9 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
   void _handleVertaling(var response) {
     _text = response.toString();
     // tts.speak(_text);
+    Vertaling v = new Vertaling(myTextCtrl.text, _text, 'it');
+    _db.saveVertaling(v);
+
   }
 
   @override
@@ -98,7 +110,3 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
   }
 }
 
-/*
-https://translate.googleapis.com/translate_a/single?client=gtx&sl=nl&tl=it&dt=t&q=goedemorgen" 
-            + sourceLang + "&tl=" + targetLang + "&dt=t&q=" + encodeURI(sourceText);
-*/
