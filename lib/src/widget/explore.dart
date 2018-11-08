@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../widget/main_appbar.dart';
 import '../service/vertaling_presenter.dart';
 import '../model/vertaling.dart';
+import '../service/dbs_service.dart';
 
 class ExplorePage extends StatelessWidget {
   @override
@@ -27,32 +28,39 @@ class _ExploreHomePage extends StatefulWidget {
 
 class _ExploreHomePageState extends State<_ExploreHomePage>
     implements HomeContract {
-  List<Vertaling> vertalingen;
+
+  bool _loaderIsActive = false;
+  List<Vertaling> _vertalingen;
   HomePresenter homePresenter;
+  DatabaseHelper _db = new DatabaseHelper();
 
   @override
-  State<StatefulWidget> createState() {
+  void initState() {
     super.initState();
     homePresenter = new HomePresenter(this);
+    var futList = _db.getVertalingen();
+    futList.then((r) {
+      _vertalingen = r;
+      print("gevonden " + _vertalingen.length.toString());
+
+      setState(() {
+        _loaderIsActive = false;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: buildMainAppBar(context, 1),
+      appBar: buildMainAppBar(context, 2),
       body: new ListView.builder(
-          itemCount: vertalingen == null ? 0 : vertalingen.length,
+          itemCount: _vertalingen == null ? 0 : _vertalingen.length,
           itemBuilder: (BuildContext context, int index) {
             return new Card(
               child: new Container(
                   child: new Center(
                     child: new Row(
                       children: <Widget>[
-                        new CircleAvatar(
-                          radius: 30.0,
-                          child: new Text('todo'),
-                          backgroundColor: const Color(0xFF20283e),
-                        ),
                         new Expanded(
                           child: new Padding(
                             padding: EdgeInsets.all(10.0),
@@ -60,9 +68,7 @@ class _ExploreHomePageState extends State<_ExploreHomePage>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 new Text(
-                                  vertalingen[index].words +
-                                      " " +
-                                      vertalingen[index].translated,
+                                  _vertalingen[index].words,
                                   // set some style to text
                                   style: new TextStyle(
                                       fontSize: 20.0,
@@ -78,8 +84,8 @@ class _ExploreHomePageState extends State<_ExploreHomePage>
                             new IconButton(
                               icon: const Icon(Icons.delete_forever,
                                   color: const Color(0xFF167F67)),
-                              onPressed: () =>
-                                  homePresenter.delete(vertalingen[index]),
+                              onPressed: () => _deleteVertaling(index),
+                                  
                             ),
                           ],
                         ),
@@ -91,6 +97,13 @@ class _ExploreHomePageState extends State<_ExploreHomePage>
           }),
     );
   }
+
+  _deleteVertaling(int index) {
+    _db.deleteUsers(_vertalingen[index]);
+    _vertalingen.remove(_vertalingen[index]);
+    screenUpdate();
+  }
+
 
   displayRecord() {
     homePresenter.updateScreen();

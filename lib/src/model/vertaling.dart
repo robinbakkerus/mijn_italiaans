@@ -9,7 +9,7 @@ class Vertaling {
 
   Vertaling.map(dynamic obj) {
     this._words = obj["words"];
-    this._translated = obj["translated"];
+    this._translated = obj["translation"];
     this._lang = obj["lang"];
   }
 
@@ -22,11 +22,11 @@ class Vertaling {
   Map<String, dynamic> toMap() {
     var map = new Map<String, dynamic>();
     map["words"] = _words;
-    map["translated"] = _translated;
+    map["translation"] = _translated;
     map["lang"] = _lang;
     return map;
   }
-  void setUserId(int id) {
+  void setId(int id) {
     this.id = id;
   }
 }

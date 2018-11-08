@@ -22,7 +22,6 @@ class VertaalHomePage extends StatefulWidget {
   VertaalHomePage({Key key, this.title}) : super(key: key);
 
   final String title;
-  
 
   @override
   _VertaalHomePageState createState() => new _VertaalHomePageState();
@@ -41,30 +40,31 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
   }
 
   void _vertaal() async {
-    setState(() {
-      _loaderIsActive = true;
-    });
+    _text = "";
+    _loaderIsActive = true;
+    _screenUpdate();
 
     var response = VertaalService.vertaal(myTextCtrl.text);
     response.then((response) => _handleVertaling(response));
-
-    setState(() {
-      _loaderIsActive = false;
-    });
   }
 
   void _handleVertaling(var response) {
     _text = response.toString();
+    _loaderIsActive = false;
     // tts.speak(_text);
     Vertaling v = new Vertaling(myTextCtrl.text, _text, 'it');
     _db.saveVertaling(v);
-
+    _screenUpdate();
   }
 
   @override
   void dispose() {
     myTextCtrl.dispose();
     super.dispose();
+  }
+
+  void _screenUpdate() {
+    setState(() {});
   }
 
   @override
@@ -92,12 +92,14 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
                   hintText: "Voer tekst in om te vertalen.."),
               controller: myTextCtrl,
             ),
-            new Text(
-              '$_text',
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.display1,
-            ),
+            _loaderIsActive == true
+                ? CircularProgressIndicator()
+                : new Text(
+                    '$_text',
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.display1,
+                  ),
           ],
         ),
       ),
@@ -109,4 +111,3 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
     );
   }
 }
-

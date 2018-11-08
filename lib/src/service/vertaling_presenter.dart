@@ -10,6 +10,7 @@ class HomePresenter {
   HomeContract _view;
   var db = new DatabaseHelper();
   HomePresenter(this._view);
+  
   delete(Vertaling user) {
     var db = new DatabaseHelper();
     db.deleteUsers(user);

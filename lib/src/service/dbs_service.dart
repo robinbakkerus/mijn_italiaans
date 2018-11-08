@@ -42,8 +42,8 @@ class DatabaseHelper {
     List<Vertaling> employees = new List();
     for (int i = 0; i < list.length; i++) {
       var vertaling =
-          new Vertaling(list[i]["firstname"], list[i]["lastname"], list[i]["dob"]);
-      vertaling.setUserId(list[i]["id"]);
+          new Vertaling(list[i]["words"], list[i]["translation"], list[i]["lang"]);
+      vertaling.setId(list[i]["id"]);
       employees.add(vertaling);
     }
     print(employees.length);
