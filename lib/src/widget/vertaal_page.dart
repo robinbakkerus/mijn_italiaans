@@ -28,7 +28,7 @@ class VertaalHomePage extends StatefulWidget {
 
 class _VertaalHomePageState extends State<VertaalHomePage> {
   bool _loaderIsActive = false;
-  final myTextCtrl = TextEditingController();
+  final _myTextCtrl = TextEditingController();
   String _text = "...";
   // final TextToSpeech tts = new TextToSpeech();
   DatabaseHelper _db = new DatabaseHelper();
@@ -36,6 +36,13 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
   @override
   void initState() {
     super.initState();
+    _myTextCtrl.addListener(_watchInput);
+  }
+
+  void _watchInput() {
+    if (_myTextCtrl.text.indexOf(".") > 0) {
+      _vertaal();
+    }
   }
 
   void _vertaal() async {
@@ -43,7 +50,7 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
     _loaderIsActive = true;
     _screenUpdate();
 
-    var response = VertaalService.vertaal(myTextCtrl.text);
+    var response = VertaalService.vertaal(_myTextCtrl.text);
     response.then((response) => _handleVertaling(response));
   }
 
@@ -51,14 +58,14 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
     _text = response.toString();
     _loaderIsActive = false;
     // tts.speak(_text);
-    Vertaling v = new Vertaling(myTextCtrl.text, _text, 'it');
+    Vertaling v = new Vertaling(_myTextCtrl.text, _text, 'it');
     _db.saveVertaling(v);
     _screenUpdate();
   }
 
   @override
   void dispose() {
-    myTextCtrl.dispose();
+    _myTextCtrl.dispose();
     super.dispose();
   }
 
@@ -74,39 +81,48 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
         child: new Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            new TextField(
-              style: TextStyle(fontSize: 25.0, color: Colors.blue),
-              keyboardType: TextInputType.multiline,
-              maxLines: 3,
-              decoration: new InputDecoration(
-                  border: new OutlineInputBorder(
-                    borderRadius: const BorderRadius.all(
-                      const Radius.circular(0.0),
-                    ),
-                    borderSide: new BorderSide(
-                      color: Colors.black,
-                      width: 1.0,
-                    ),
-                  ),
-                  hintText: "Voer tekst in om te vertalen.."),
-              controller: myTextCtrl,
-            ),
+            _textField(),
             _loaderIsActive == true
                 ? CircularProgressIndicator()
-                : new Text(
-                    '$_text',
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.display1,
-                  ),
+                : _buildText(context),
           ],
         ),
       ),
       floatingActionButton: new FloatingActionButton(
         onPressed: _vertaal,
         tooltip: 'Vertaal',
-        child: new Icon(Icons.add),
+        
+        child: new Icon(Icons.send),
       ),
+    );
+  }
+
+  Text _buildText(BuildContext context) {
+    return new Text(
+      '$_text',
+      textAlign: TextAlign.center,
+      overflow: TextOverflow.ellipsis,
+      style: Theme.of(context).textTheme.display1,
+    );
+  }
+
+  TextField _textField() {
+    return new TextField(
+      style: TextStyle(fontSize: 25.0, color: Colors.blue),
+      keyboardType: TextInputType.multiline,
+      maxLines: 3,
+      decoration: new InputDecoration(
+          border: new OutlineInputBorder(
+            borderRadius: const BorderRadius.all(
+              const Radius.circular(0.0),
+            ),
+            borderSide: new BorderSide(
+              color: Colors.black,
+              width: 1.0,
+            ),
+          ),
+          hintText: "Voer tekst in om te vertalen.."),
+      controller: _myTextCtrl,
     );
   }
 }

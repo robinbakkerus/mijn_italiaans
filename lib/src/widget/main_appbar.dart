@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'homepage.dart';
-import 'vertaal.dart';
+import 'home_page.dart';
+import 'vertaal_page.dart';
 import 'explore_page.dart';
+import 'admin_page.dart';
 
 class Choice {
   const Choice({this.title, this.icon});
@@ -12,10 +13,8 @@ class Choice {
 const List<Choice> choices = const <Choice>[
   const Choice(title: '/home', icon: Icons.home),
   const Choice(title: '/vertaal', icon: Icons.input),
-  const Choice(title: '/explore', icon: Icons.explore),
-  const Choice(title: 'Bus', icon: Icons.directions_bus),
-  const Choice(title: 'Train', icon: Icons.directions_railway),
-  const Choice(title: 'Walk', icon: Icons.directions_walk),
+  const Choice(title: '/explore', icon: Icons.format_list_bulleted),
+  const Choice(title: '/admin', icon: Icons.settings),
 ];
 
 AppBar buildMainAppBar(BuildContext context, int disableButton) {
@@ -32,6 +31,9 @@ AppBar buildMainAppBar(BuildContext context, int disableButton) {
     } else if (choice.title == '/explore') {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => ExplorePage()));
+    } else if (choice.title == '/admin') {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => AdminPage()));
     } else {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => HomePage()));
@@ -50,11 +52,11 @@ AppBar buildMainAppBar(BuildContext context, int disableButton) {
   }
 
   return new AppBar(
-    title: new Text("Mi Italia"),
     actions: <Widget>[
       _buildButton(0),
       _buildButton(1),
       _buildButton(2),
+      _buildButton(3),
       PopupMenuButton<Choice>(
         onSelected: _select,
         itemBuilder: (BuildContext context) {
