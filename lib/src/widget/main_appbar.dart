@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'homepage.dart';
 import 'vertaal.dart';
-import 'explore.dart';
+import 'explore_page.dart';
 
 class Choice {
   const Choice({this.title, this.icon});

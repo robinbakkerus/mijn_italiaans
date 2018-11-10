@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'src/widget/homepage.dart';
-import 'src/widget/vertaal.dart';
 
 void main() => runApp(new App());
 
