@@ -92,7 +92,7 @@ class _AdminFormState extends State<_AdminForm> {
           ),
           new Row(
             children: <Widget>[
-              // _textField(),
+              new TextField(),
             ],
           ),
           Padding(
