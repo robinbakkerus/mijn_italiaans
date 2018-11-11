@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widget/main_appbar.dart';
 import '../model/vertaling.dart';
+import '../model/settings.dart';
 import '../service/dbs_service.dart';
 
 class ExplorePage extends StatelessWidget {
@@ -102,6 +103,7 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
   }
 
   void screenUpdate() {
+    print(Settings.current.targetLang);     
     setState(() {});
   }
 

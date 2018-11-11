@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widget/main_appbar.dart';
+import '../model/settings.dart';
+import '../service/dbs_service.dart';
 
 class AdminPage extends StatelessWidget {
   @override
@@ -25,17 +27,19 @@ class _AdminForm extends StatefulWidget {
 class _AdminFormState extends State<_AdminForm> {
   final _formKey = GlobalKey<FormState>();
 
-  List _languages = ["nl", "en", "it", "es", "de"];
+  final List _languages = ["nl", "it", "es", "de", "en"];
 
   List<DropdownMenuItem<String>> _dropDownMenuItems;
-  String _currentNativeLang;
-  String _currentTargetLang;
+  String _nativeLang;
+  String _targetLang;
   final _myTextCtrl = TextEditingController();
+  final DatabaseHelper _db = new DatabaseHelper();
 
   @override
   void initState() {
     _dropDownMenuItems = _getDropDownMenuItems();
-    _currentNativeLang = _dropDownMenuItems[0].value;
+    _nativeLang = Settings.current.nativeLang;
+    _targetLang = Settings.current.targetLang;
     super.initState();
   }
 
@@ -47,10 +51,16 @@ class _AdminFormState extends State<_AdminForm> {
     return items;
   }
 
-  void _onNativeLanguageChange(String selectedCity) {
-    // setState(() {
-    //   _currentNativeLang = selectedCity;
-    // });
+  void _onNativeLangChange(String selectedLang) {
+    setState(() {
+      _nativeLang = selectedLang;
+    });
+  }
+
+  void _onTargetLangChange(String selectedLang) {
+    setState(() {
+      _targetLang = selectedLang;
+    });
   }
 
   @override
@@ -65,9 +75,9 @@ class _AdminFormState extends State<_AdminForm> {
               Container(width: 20.0),
               Container(width: 100.0, child: new Text("Moedertaal: ")),
               DropdownButton(
-                value: _currentNativeLang,
+                value: _nativeLang,
                 items: _dropDownMenuItems,
-                onChanged: _onNativeLanguageChange,
+                onChanged: _onNativeLangChange,
               )
             ],
           ),
@@ -77,9 +87,9 @@ class _AdminFormState extends State<_AdminForm> {
               Container(width: 20.0),
               Container(width: 100.0, child: new Text("Naar taal: ")),
               DropdownButton(
-                value: _currentNativeLang,
+                value: _targetLang,
                 items: _dropDownMenuItems,
-                onChanged: _onNativeLanguageChange,
+                onChanged: _onTargetLangChange,
               )
             ],
           ),
@@ -92,17 +102,16 @@ class _AdminFormState extends State<_AdminForm> {
           ),
           new Row(
             children: <Widget>[
-              new TextField(),
+              // new TextField(),
             ],
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: RaisedButton(
               onPressed: () {
-                // Validate will return true if the form is valid, or false if
-                // the form is invalid.
                 if (_formKey.currentState.validate()) {
-                  // If the form is valid, we want to show a Snackbar
+                  Settings settings = new Settings(_nativeLang, _targetLang, "");
+                  _db.saveSettings(settings);
                   Scaffold.of(context)
                       .showSnackBar(SnackBar(content: Text('Processing Data')));
                 }

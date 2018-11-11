@@ -32,16 +32,25 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
   String _text = "...";
   // final TextToSpeech tts = new TextToSpeech();
   DatabaseHelper _db = new DatabaseHelper();
+  FocusNode _focusNode = new FocusNode();
 
   @override
   void initState() {
     super.initState();
     _myTextCtrl.addListener(_watchInput);
+    _focusNode.addListener(_focusChanged);
+
+  }
+
+  void _focusChanged() {
+    if (_focusNode.hasFocus) {
+      _myTextCtrl.text = "";
+    }
   }
 
   void _watchInput() {
     if (_myTextCtrl.text.indexOf(".") > 0) {
-      _vertaal();
+     _vertaal();
     }
   }
 
@@ -49,7 +58,7 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
     _text = "";
     _loaderIsActive = true;
     _screenUpdate();
-
+    _focusNode.unfocus();
     var response = VertaalService.vertaal(_myTextCtrl.text);
     response.then((response) => _handleVertaling(response));
   }
@@ -58,6 +67,7 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
     _text = response.toString();
     _loaderIsActive = false;
     // tts.speak(_text);
+    _myTextCtrl.text = _myTextCtrl.text.replaceAll(".", "");
     Vertaling v = new Vertaling(_myTextCtrl.text, _text, 'it');
     _db.saveVertaling(v);
     _screenUpdate();
@@ -66,6 +76,7 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
   @override
   void dispose() {
     _myTextCtrl.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -79,27 +90,27 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
       appBar: buildMainAppBar(context, 1),
       body: new Center(
         child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             _textField(),
             _loaderIsActive == true
                 ? CircularProgressIndicator()
-                : _buildText(context),
+                : _buildTranslatedText(context),
           ],
         ),
       ),
       floatingActionButton: new FloatingActionButton(
         onPressed: _vertaal,
         tooltip: 'Vertaal',
-        
         child: new Icon(Icons.send),
       ),
     );
   }
 
-  Text _buildText(BuildContext context) {
+  Text _buildTranslatedText(BuildContext context) {
     return new Text(
       '$_text',
+      maxLines: 4,
       textAlign: TextAlign.center,
       overflow: TextOverflow.ellipsis,
       style: Theme.of(context).textTheme.display1,
@@ -108,6 +119,7 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
 
   TextField _textField() {
     return new TextField(
+      focusNode: _focusNode,
       style: TextStyle(fontSize: 25.0, color: Colors.blue),
       keyboardType: TextInputType.multiline,
       maxLines: 3,
