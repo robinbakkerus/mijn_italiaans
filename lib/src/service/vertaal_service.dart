@@ -1,6 +1,9 @@
 import 'dart:convert'; // for parsing JSON strings
 import 'package:http/http.dart' as http;
 
+import '../model/settings.dart';
+
+
 const oneSecond = Duration(seconds: 3);
 
 const String URL =
@@ -27,6 +30,8 @@ class VertaalService {
   }
 
   static String _makeUrl(String text) {
-    return Uri.encodeFull(URL.replaceAll("%s", text));
+    String url = URL.replaceAll("=nl", "=" + Settings.current.nativeLang);
+    url = url.replaceAll("=it", "=" + Settings.current.targetLang);
+    return Uri.encodeFull(url.replaceAll("%s", text));
   }
 }

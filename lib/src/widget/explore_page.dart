@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../widget/main_appbar.dart';
 import '../model/vertaling.dart';
 import '../model/settings.dart';
+import '../model/sort_order.dart';
 import '../service/dbs_service.dart';
 
 class ExplorePage extends StatelessWidget {
@@ -29,11 +30,17 @@ class _ExploreHomePage extends StatefulWidget {
 class _ExploreHomePageState extends State<_ExploreHomePage> {
   List<Vertaling> _vertalingen;
   DatabaseHelper _db = new DatabaseHelper();
+  List<DropdownMenuItem<String>> _dropDownMenuItems;
+  Map<SortOrder, String> kv;
+  SortOrder _selcSortOrder = SortOrder.ID_ASC;
 
   @override
   void initState() {
     super.initState();
-    var futList = _db.getVertalingen();
+
+    _dropDownMenuItems = _getDropDownMenuItems();
+
+    var futList = _db.getVertalingen(SortOrder.ID_DESC);
     futList.then((r) {
       _vertalingen = r;
       print("gevonden " + _vertalingen.length.toString());
@@ -50,6 +57,11 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
           itemBuilder: (BuildContext context, int index) {
             return _newCard(index);
           }),
+      floatingActionButton: new FloatingActionButton(
+        onPressed: _askSortOrder,
+        tooltip: 'Vertaal',
+        child: new Icon(Icons.sort),
+      ),
     );
   }
 
@@ -61,6 +73,7 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
               onTap: () {
                 _showTranslation(index);
               },
+              
               child: new Row(
                 children: <Widget>[
                   new Expanded(
@@ -99,11 +112,11 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
   _deleteVertaling(int index) {
     _db.deleteUsers(_vertalingen[index]);
     _vertalingen.remove(_vertalingen[index]);
-    screenUpdate();
+    _screenUpdate();
   }
 
-  void screenUpdate() {
-    print(Settings.current.targetLang);     
+  void _screenUpdate() {
+    print(Settings.current.targetLang);
     setState(() {});
   }
 
@@ -125,5 +138,53 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
         );
       },
     );
+  }
+
+  List<DropdownMenuItem<String>> _getDropDownMenuItems() {
+    List<DropdownMenuItem<String>> items = new List();
+    SortUtils.SORTORDER_CB.forEach((k, v) =>
+        items.add(new DropdownMenuItem(value: v, child: new Text(v))));
+    return items;
+  }
+
+  void _askSortOrder() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          actions: <Widget>[
+            new Text(''),
+            new DropdownButton<String>(
+              hint: new Text("Hoe te sorteren"),
+              value: SortUtils.SORTORDER_CB[_selcSortOrder],
+              onChanged: (String newVal) {
+                setState(() {
+                  _selcSortOrder = SortUtils.fromValue(newVal);
+                });
+              },
+              items: _dropDownMenuItems,
+            ),
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                _doSort();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _doSort() {
+    var futList = _db.getVertalingen(_selcSortOrder);
+    print(_selcSortOrder.toString());
+    futList.then((r) {
+      print("gevonden " + _vertalingen.length.toString());
+      setState(() {
+        _vertalingen = r;
+      });
+    });
   }
 }

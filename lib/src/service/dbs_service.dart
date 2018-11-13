@@ -5,6 +5,7 @@ import 'package:sqflite/sqflite.dart';
 
 import '../model/vertaling.dart';
 import '../model/settings.dart';
+import '../model/sort_order.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = new DatabaseHelper.internal();
@@ -36,22 +37,51 @@ class DatabaseHelper {
 
   Future<int> saveVertaling(Vertaling vertaling) async {
     var dbClient = await db;
-    int res = await dbClient.insert("Vertaling", vertaling.toMap());
-    return res;
+    List<Vertaling> list = await getVertalingById(vertaling.id);
+    if (list.length == 0) {
+      int res = await dbClient.insert("Vertaling", vertaling.toMap());
+      return res;
+    } else {
+      return 0;
+    }
   }
 
-  Future<List<Vertaling>> getVertalingen() async {
+  Future<List<Vertaling>> getVertalingen(SortOrder sortOrder) async {
     var dbClient = await db;
-    List<Map> list = await dbClient.rawQuery('SELECT * FROM Vertaling');
-    List<Vertaling> employees = new List();
+    String qry = 'SELECT * FROM Vertaling ' + SortUtils.SORTORDER_SQL[sortOrder];
+    print(qry);
+    List<Map> list = await dbClient.rawQuery(qry);
+    List<Vertaling> vertalingen = new List();
     for (int i = 0; i < list.length; i++) {
       var vertaling = new Vertaling(
           list[i]["words"], list[i]["translation"], list[i]["lang"]);
       vertaling.setId(list[i]["id"]);
-      employees.add(vertaling);
+      vertalingen.add(vertaling);
     }
-    print(employees.length);
-    return employees;
+    print(vertalingen.length);
+    return vertalingen;
+  }
+
+  Future<List<Vertaling>> getVertalingById(int id) async {
+    var dbClient = await db;
+    String qry = 'SELECT * FROM Vertaling WHERE id=\'' +
+        id.toString() +
+        '\'' +
+        ' AND lang=\'' +
+        Settings.current.targetLang +
+        '\'';
+    print(qry);
+    List<Map> list = await dbClient.rawQuery(qry);
+    List<Vertaling> vertalingen = new List();
+    for (int i = 0; i < list.length; i++) {
+      var vertaling = new Vertaling(
+          list[i]["words"], list[i]["translation"], list[i]["lang"]);
+      vertaling.setId(list[i]["id"]);
+      vertalingen.add(vertaling);
+    }
+
+    print(vertalingen.length);
+    return vertalingen;
   }
 
   Future<int> deleteUsers(Vertaling vertaling) async {

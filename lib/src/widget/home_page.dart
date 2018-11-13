@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widget/main_appbar.dart';
+import '../model/settings.dart';
+
 
 class StartPage extends StatelessWidget {
   @override
@@ -24,6 +26,7 @@ class _HomePage extends StatefulWidget {
 
 class _HomePageState extends State<_HomePage> {
 
+  String _image = 'images/logo_' + Settings.current.targetLang + ".jpg";
   @override
   void initState() {
     super.initState();
@@ -36,7 +39,7 @@ class _HomePageState extends State<_HomePage> {
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Image.asset('images/italy.jpg'),
+            Image.asset(_image),
           ],
         ));
   }

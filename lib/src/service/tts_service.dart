@@ -1,63 +1,50 @@
-// import 'dart:async';
-// import 'package:flutter_tts/flutter_tts.dart';
 
-// enum TtsState { playing, stopped }
+import 'package:dio/dio.dart';
 
-// class TextToSpeech {
+import '../model/settings.dart';
 
-//   TextToSpeech() {
-//     _initState();
-//   }
 
-//   FlutterTts flutterTts;
-//   List<dynamic> languages;
-//   String language;
+const oneSecond = Duration(seconds: 3);
 
-//   TtsState ttsState = TtsState.stopped;
+const String URL =
+    'https://texttospeech.googleapis.com/v1beta1/text:synthesize';
 
-//   get isPlaying => ttsState == TtsState.playing;
-//   get isStopped => ttsState == TtsState.stopped;
+class TTSService {
 
-//   _initState() {
-//     _initTts();
-//     _getLanguages();
-//   }
+  static Dio _dio = new Dio();
 
-//   _initTts() async {
-//     flutterTts = new FlutterTts();
+  static Future<void> speak(String text) async {
 
-//     flutterTts.setStartHandler(() {
-//         ttsState = TtsState.playing;
-//     });
+    var response = await _dio.post(URL, data: _getData(text));
 
-//     flutterTts.setCompletionHandler(() {
-//         ttsState = TtsState.stopped;
-//     });
+  }
 
-//     flutterTts.setErrorHandler((msg) {
-//         ttsState = TtsState.stopped;
-//     });
-//   }
+  static String _getData(String text) {
+    var jsonString = '''
+    
+    {
+      "audioConfig": {
+        "audioEncoding": "LINEAR16",
+        "pitch": "0.00",
+        "speakingRate": "1.00"
+      },
+      "input": {
+        "text": "hi text"
+      },
+     "voice": {
+    "languageCode": "en-US",
+    "name": "en-US-Wavenet-D"
+  }
+    }
+    ''';
 
-//   Future speak(String text) async {
-//     var result = await flutterTts.speak(text);
-//     if (result == 1) ttsState = TtsState.playing;
-//   }
+    print(jsonString);
+    return jsonString;
+  }
 
-//   Future stop() async {
-//     var result = await flutterTts.stop();
-//     if (result == 1) ttsState = TtsState.stopped;
-//   }
-
-//   void dispose() {
-//     flutterTts.stop();
-//   }
-
-//   void _getLanguages() async {
-//     languages = await flutterTts.getLanguages;
-//     if (languages != null) {
-//       print(languages);
-//     }
-//   }
-
-// }
+  static String _makeUrl(String text) {
+    String url = URL.replaceAll("=nl", "=" + Settings.current.nativeLang);
+    url = url.replaceAll("=it", "=" + Settings.current.targetLang);
+    return Uri.encodeFull(url.replaceAll("%s", text));
+  }
+}

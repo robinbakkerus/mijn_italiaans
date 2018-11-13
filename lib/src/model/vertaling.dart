@@ -30,3 +30,5 @@ class Vertaling {
     this.id = id;
   }
 }
+
+

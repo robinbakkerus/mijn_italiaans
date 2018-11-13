@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import '../service/vertaal_service.dart';
 import '../widget/main_appbar.dart';
 import '../service/dbs_service.dart';
+import '../service/tts_service.dart';
 import '../model/vertaling.dart';
+import '../model/settings.dart';
 
 class VertaalPage extends StatelessWidget {
   @override
@@ -19,7 +21,6 @@ class VertaalPage extends StatelessWidget {
 
 class VertaalHomePage extends StatefulWidget {
   VertaalHomePage({Key key, this.title}) : super(key: key);
-
   final String title;
 
   @override
@@ -29,7 +30,8 @@ class VertaalHomePage extends StatefulWidget {
 class _VertaalHomePageState extends State<VertaalHomePage> {
   bool _loaderIsActive = false;
   final _myTextCtrl = TextEditingController();
-  String _text = "...";
+  String _translation = "...";
+  String _lastWords = "";
   // final TextToSpeech tts = new TextToSpeech();
   DatabaseHelper _db = new DatabaseHelper();
   FocusNode _focusNode = new FocusNode();
@@ -37,9 +39,7 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
   @override
   void initState() {
     super.initState();
-    _myTextCtrl.addListener(_watchInput);
     _focusNode.addListener(_focusChanged);
-
   }
 
   void _focusChanged() {
@@ -48,27 +48,27 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
     }
   }
 
-  void _watchInput() {
-    if (_myTextCtrl.text.indexOf(".") > 0) {
-     _vertaal();
-    }
-  }
-
   void _vertaal() async {
-    _text = "";
+    _translation = "";
     _loaderIsActive = true;
     _screenUpdate();
     _focusNode.unfocus();
+    _lastWords = _myTextCtrl.text;
     var response = VertaalService.vertaal(_myTextCtrl.text);
     response.then((response) => _handleVertaling(response));
   }
 
+  void _restoreText() {
+    _myTextCtrl.text =_lastWords;
+  }
+
   void _handleVertaling(var response) {
-    _text = response.toString();
+    _translation = response.toString();
     _loaderIsActive = false;
     // tts.speak(_text);
-    _myTextCtrl.text = _myTextCtrl.text.replaceAll(".", "");
-    Vertaling v = new Vertaling(_myTextCtrl.text, _text, 'it');
+    TTSService.speak(_translation);
+    Vertaling v = new Vertaling(
+        _myTextCtrl.text, _translation, Settings.current.targetLang);
     _db.saveVertaling(v);
     _screenUpdate();
   }
@@ -99,17 +99,28 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
           ],
         ),
       ),
-      floatingActionButton: new FloatingActionButton(
-        onPressed: _vertaal,
-        tooltip: 'Vertaal',
-        child: new Icon(Icons.send),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          new FloatingActionButton(
+            onPressed: _restoreText,
+            tooltip: 'Restore text',
+            child: new Icon(Icons.undo),
+          ),
+          new Container(width: 20,),
+          new FloatingActionButton(
+            onPressed: _vertaal,
+            tooltip: 'Vertaal',
+            child: new Icon(Icons.send),
+          ),
+        ],
       ),
     );
   }
 
   Text _buildTranslatedText(BuildContext context) {
     return new Text(
-      '$_text',
+      '$_translation',
       maxLines: 4,
       textAlign: TextAlign.center,
       overflow: TextOverflow.ellipsis,

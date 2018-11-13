@@ -27,7 +27,7 @@ class _AdminForm extends StatefulWidget {
 class _AdminFormState extends State<_AdminForm> {
   final _formKey = GlobalKey<FormState>();
 
-  final List _languages = ["nl", "it", "es", "de", "en"];
+  final List _languages = ["nl", "it", "es", "fr", "de", "en"];
 
   List<DropdownMenuItem<String>> _dropDownMenuItems;
   String _nativeLang;
@@ -102,18 +102,21 @@ class _AdminFormState extends State<_AdminForm> {
           ),
           new Row(
             children: <Widget>[
-              // new TextField(),
-            ],
+              Container(width: 20.0),
+              Expanded(
+                child: _textField())
+              ],
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: RaisedButton(
               onPressed: () {
                 if (_formKey.currentState.validate()) {
-                  Settings settings = new Settings(_nativeLang, _targetLang, "");
+                  Settings settings =
+                      new Settings(_nativeLang, _targetLang, "");
                   _db.saveSettings(settings);
-                  Scaffold.of(context)
-                      .showSnackBar(SnackBar(content: Text('Processing Data')));
+                  Scaffold.of(context).showSnackBar(
+                      SnackBar(content: Text('Processing Data')));
                 }
               },
               child: Text('Submit'),
@@ -126,18 +129,17 @@ class _AdminFormState extends State<_AdminForm> {
 
   TextField _textField() {
     return new TextField(
-      
       keyboardType: TextInputType.emailAddress,
       decoration: new InputDecoration(
-          border: new OutlineInputBorder(
-            borderRadius: const BorderRadius.all(
-              const Radius.circular(0.0),
-            ),
-            borderSide: new BorderSide(
-              color: Colors.black,
-              width: 1.0,
-            ),
-          ),
+      //     border: new OutlineInputBorder(
+      //       borderRadius: const BorderRadius.all(
+      //         const Radius.circular(0.0),
+      //       ),
+      //       borderSide: new BorderSide(
+      //         color: Colors.black,
+      //         width: 1.0,
+      //       ),
+      //     ),
           hintText: "Geef email adres.."),
       controller: _myTextCtrl,
     );
