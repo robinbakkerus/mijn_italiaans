@@ -102,16 +102,18 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
-          new FloatingActionButton(
-            onPressed: _restoreText,
-            tooltip: 'Restore text',
-            child: new Icon(Icons.undo),
-          ),
+          // new FloatingActionButton(
+          //   onPressed: _restoreText,
+          //   tooltip: 'Restore text',
+          //   child: new Icon(Icons.undo),
+          //   heroTag: null,
+          // ),
           new Container(width: 20,),
           new FloatingActionButton(
             onPressed: _vertaal,
             tooltip: 'Vertaal',
             child: new Icon(Icons.send),
+            heroTag: null,
           ),
         ],
       ),
