@@ -1,8 +1,10 @@
+import 'languages.dart';
+
 class Settings {
 
   int id;
-  String _nativeLang;
-  String _targetLang;
+  LangEnum _nativeLang;
+  LangEnum _targetLang;
   String _emailAdress;
 
   Settings(this._nativeLang, this._targetLang, this._emailAdress);
@@ -13,9 +15,9 @@ class Settings {
     this._emailAdress = obj["email_address"];
   }
 
-  String get nativeLang => _nativeLang;
+  LangEnum get nativeLang => _nativeLang;
 
-  String get targetLang => _targetLang;
+  LangEnum get targetLang => _targetLang;
 
   String get emailAddress => _emailAdress;
 
@@ -27,5 +29,5 @@ class Settings {
     return map;
   }
 
-  static Settings current = new Settings("nl", "it", "");
+  static Settings current = new Settings(LangEnum.NL, LangEnum.IT, "");
 }

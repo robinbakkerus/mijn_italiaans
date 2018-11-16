@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../widget/main_appbar.dart';
 import '../model/settings.dart';
 import '../service/dbs_service.dart';
+import '../model/languages.dart';
+
 
 class AdminPage extends StatelessWidget {
   @override
@@ -27,11 +29,9 @@ class _AdminForm extends StatefulWidget {
 class _AdminFormState extends State<_AdminForm> {
   final _formKey = GlobalKey<FormState>();
 
-  final List _languages = ["nl", "it", "es", "fr", "de", "en"];
-
-  List<DropdownMenuItem<String>> _dropDownMenuItems;
-  String _nativeLang;
-  String _targetLang;
+  List<DropdownMenuItem<LangEnum>> _dropDownMenuItems;
+  LangEnum _nativeLang;
+  LangEnum _targetLang;
   final _myTextCtrl = TextEditingController();
   final DatabaseHelper _db = new DatabaseHelper();
 
@@ -43,21 +43,20 @@ class _AdminFormState extends State<_AdminForm> {
     super.initState();
   }
 
-  List<DropdownMenuItem<String>> _getDropDownMenuItems() {
-    List<DropdownMenuItem<String>> items = new List();
-    for (String city in _languages) {
-      items.add(new DropdownMenuItem(value: city, child: new Text(city)));
-    }
+  List<DropdownMenuItem<LangEnum>> _getDropDownMenuItems() {
+     List<DropdownMenuItem<LangEnum>> items = new List();
+    Languages.LANG_SELECT_CB.forEach((k, v) =>
+        items.add(new DropdownMenuItem(value: k, child: new Text(v))));
     return items;
   }
 
-  void _onNativeLangChange(String selectedLang) {
+  void _onNativeLangChange(LangEnum selectedLang) {
     setState(() {
       _nativeLang = selectedLang;
     });
   }
 
-  void _onTargetLangChange(String selectedLang) {
+  void _onTargetLangChange(LangEnum selectedLang) {
     setState(() {
       _targetLang = selectedLang;
     });
@@ -74,7 +73,7 @@ class _AdminFormState extends State<_AdminForm> {
             children: <Widget>[
               Container(width: 20.0),
               Container(width: 100.0, child: new Text("Moedertaal: ")),
-              DropdownButton(
+              DropdownButton<LangEnum>(
                 value: _nativeLang,
                 items: _dropDownMenuItems,
                 onChanged: _onNativeLangChange,
@@ -86,7 +85,7 @@ class _AdminFormState extends State<_AdminForm> {
             children: <Widget>[
               Container(width: 20.0),
               Container(width: 100.0, child: new Text("Naar taal: ")),
-              DropdownButton(
+              DropdownButton<LangEnum>(
                 value: _targetLang,
                 items: _dropDownMenuItems,
                 onChanged: _onTargetLangChange,

@@ -6,6 +6,7 @@ import 'package:sqflite/sqflite.dart';
 import '../model/vertaling.dart';
 import '../model/settings.dart';
 import '../model/sort_order.dart';
+import '../model/languages.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = new DatabaseHelper.internal();
@@ -68,7 +69,7 @@ class DatabaseHelper {
         id.toString() +
         '\'' +
         ' AND lang=\'' +
-        Settings.current.targetLang +
+        Languages.name(Settings.current.targetLang) +
         '\'';
     print(qry);
     List<Map> list = await dbClient.rawQuery(qry);
@@ -118,7 +119,7 @@ class DatabaseHelper {
       print(settings);
       return settings;
     } else {
-      return new Settings("nl", "it", "robin.bakkerus@gmail.com");
+      return new Settings(LangEnum.NL, LangEnum.IT, "robin.bakkerus@gmail.com");
     }
   }
 }

@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import '../service/vertaal_service.dart';
 import '../widget/main_appbar.dart';
 import '../service/dbs_service.dart';
-import '../service/tts_service.dart';
+import '../service/flutter_tts_service.dart';
 import '../model/vertaling.dart';
 import '../model/settings.dart';
+import '../model/languages.dart';
 
 class VertaalPage extends StatelessWidget {
   @override
@@ -32,7 +33,7 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
   final _myTextCtrl = TextEditingController();
   String _translation = "...";
   String _lastWords = "";
-  // final TextToSpeech tts = new TextToSpeech();
+  final TextToSpeech tts = new TextToSpeech();
   DatabaseHelper _db = new DatabaseHelper();
   FocusNode _focusNode = new FocusNode();
 
@@ -59,16 +60,15 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
   }
 
   void _restoreText() {
-    _myTextCtrl.text =_lastWords;
+    _myTextCtrl.text = _lastWords;
   }
 
   void _handleVertaling(var response) {
     _translation = response.toString();
     _loaderIsActive = false;
-    // tts.speak(_text);
-    TTSService.speak(_translation);
+    tts.speak(_translation);
     Vertaling v = new Vertaling(
-        _myTextCtrl.text, _translation, Settings.current.targetLang);
+        _myTextCtrl.text, _translation, Languages.LANG_SELECT_CB[Settings.current.targetLang]);
     _db.saveVertaling(v);
     _screenUpdate();
   }
@@ -93,31 +93,51 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             _textField(),
+            _actionButtons(context),
             _loaderIsActive == true
                 ? CircularProgressIndicator()
                 : _buildTranslatedText(context),
           ],
         ),
       ),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[
-          // new FloatingActionButton(
-          //   onPressed: _restoreText,
-          //   tooltip: 'Restore text',
-          //   child: new Icon(Icons.undo),
-          //   heroTag: null,
-          // ),
-          new Container(width: 20,),
-          new FloatingActionButton(
-            onPressed: _vertaal,
-            tooltip: 'Vertaal',
-            child: new Icon(Icons.send),
-            heroTag: null,
-          ),
-        ],
-      ),
+      // floatingActionButton: Row(
+      //   mainAxisAlignment: MainAxisAlignment.end,
+      //   children: <Widget>[
+      //     new FloatingActionButton(
+      //       onPressed: _restoreText,
+      //       tooltip: 'Restore text',
+      //       child: new Icon(Icons.undo),
+      //       heroTag: null,
+      //     ),
+      //     new Container(
+      //       width: 20,
+      //     ),
+      //     new FloatingActionButton(
+      //       onPressed: _vertaal,
+      //       tooltip: 'Vertaal',
+      //       child: new Icon(Icons.send),
+      //       heroTag: null,
+      //     ),
+        // ],
+      // ),
     );
+  }
+
+  Row _actionButtons(BuildContext context) {
+    return Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
+      IconButton(
+        icon: Icon(Icons.undo),
+        onPressed: _restoreText,
+      ),
+      Container(
+        width: 20,
+      ),
+      IconButton(
+        icon: Icon(Icons.send),
+        onPressed: _vertaal,
+        tooltip: 'Vertaal',
+      ),
+    ]);
   }
 
   Text _buildTranslatedText(BuildContext context) {

@@ -2,6 +2,7 @@ import 'dart:convert'; // for parsing JSON strings
 import 'package:http/http.dart' as http;
 
 import '../model/settings.dart';
+import '../model/languages.dart';
 
 
 const oneSecond = Duration(seconds: 3);
@@ -30,8 +31,12 @@ class VertaalService {
   }
 
   static String _makeUrl(String text) {
-    String url = URL.replaceAll("=nl", "=" + Settings.current.nativeLang);
-    url = url.replaceAll("=it", "=" + Settings.current.targetLang);
+    String url = URL.replaceAll("=nl", "=" + _lowerLang(Settings.current.nativeLang));
+    url = url.replaceAll("=it", "=" + _lowerLang(Settings.current.targetLang));
     return Uri.encodeFull(url.replaceAll("%s", text));
+  }
+
+  static String _lowerLang(LangEnum lang) {
+    return Languages.name(lang);
   }
 }
