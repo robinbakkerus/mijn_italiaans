@@ -28,6 +28,8 @@ class VertaalHomePage extends StatefulWidget {
   _VertaalHomePageState createState() => new _VertaalHomePageState();
 }
 
+//------------------------------------------------------------
+
 class _VertaalHomePageState extends State<VertaalHomePage> {
   bool _loaderIsActive = false;
   final _myTextCtrl = TextEditingController();
@@ -55,7 +57,8 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
     _screenUpdate();
     _focusNode.unfocus();
     _lastWords = _myTextCtrl.text;
-    var response = VertaalService.vertaal(_myTextCtrl.text);
+    String txt = _myTextCtrl.text.trim();
+    var response = VertaalService.vertaal(txt);
     response.then((response) => _handleVertaling(response));
   }
 
@@ -66,7 +69,10 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
   void _handleVertaling(var response) {
     _translation = response.toString();
     _loaderIsActive = false;
-    tts.speak(_translation);
+
+    _doTextToSpeach();
+    
+    // save to dbs
     Vertaling v = new Vertaling(
         _myTextCtrl.text, _translation, Languages.LANG_SELECT_CB[Settings.current.targetLang]);
     _db.saveVertaling(v);
@@ -82,6 +88,16 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
 
   void _screenUpdate() {
     setState(() {});
+  }
+
+  void _toggleSpeaker() {
+    setState(() {
+          Settings.current.speaker = !Settings.current.speaker;
+        });
+  }
+
+  void _doTextToSpeach() {
+    if (Settings.current.speaker)  tts.speak(_translation);
   }
 
   @override
@@ -125,6 +141,22 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
 
   Row _actionButtons(BuildContext context) {
     return Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
+      IconButton(
+        icon: Icon(Settings.current.speaker ? Icons.surround_sound : null),
+        onPressed: _doTextToSpeach,
+        tooltip: 'Opnieuw uitspreken',
+      ),
+      Container(
+        width: 20,
+      ),
+      IconButton(
+        icon: Icon( Settings.current.speaker ? Icons.speaker_notes_off : Icons.speaker_notes),
+        onPressed: _toggleSpeaker,
+        tooltip: 'Speaker',
+      ),
+      Container(
+        width: 20,
+      ),
       IconButton(
         icon: Icon(Icons.undo),
         onPressed: _restoreText,

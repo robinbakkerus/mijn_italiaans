@@ -112,7 +112,7 @@ class _AdminFormState extends State<_AdminForm> {
               onPressed: () {
                 if (_formKey.currentState.validate()) {
                   Settings settings =
-                      new Settings(_nativeLang, _targetLang, "");
+                      new Settings(_nativeLang, _targetLang, "", Settings.current.speaker);
                   _db.saveSettings(settings);
                   Scaffold.of(context).showSnackBar(
                       SnackBar(content: Text('Processing Data')));

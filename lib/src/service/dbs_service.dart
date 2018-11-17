@@ -115,11 +115,11 @@ class DatabaseHelper {
         await dbClient.rawQuery('SELECT * FROM Vertaling_Settings');
     if (list.length > 0) {
       Settings settings = new Settings(list[0]["native_lang"],
-          list[0]["target_lang"], list[0]["email_address"]);
+          list[0]["target_lang"], list[0]["email_address"], true);
       print(settings);
       return settings;
     } else {
-      return new Settings(LangEnum.NL, LangEnum.IT, "robin.bakkerus@gmail.com");
+      return new Settings(LangEnum.NL, LangEnum.IT, "robin.bakkerus@gmail.com", true);
     }
   }
 }

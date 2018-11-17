@@ -20,6 +20,7 @@ dependencies:
   dio: any
   http: any
   flutter_tts: any
+  url_launcher: any
   
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -49,7 +50,9 @@ flutter:
     - images/logo_en.jpg
     - images/logo_it.jpg
     - images/logo_es.jpg
+    - images/logo_de.jpg
     - images/logo_fr.jpg
+
 
   #  - images/a_dot_ham.jpeg
 

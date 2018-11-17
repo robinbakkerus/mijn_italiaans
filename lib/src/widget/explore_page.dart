@@ -4,6 +4,7 @@ import '../model/vertaling.dart';
 import '../model/settings.dart';
 import '../model/sort_order.dart';
 import '../service/dbs_service.dart';
+import '../service/email_service.dart';
 
 class ExplorePage extends StatelessWidget {
   @override
@@ -57,11 +58,8 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
           itemBuilder: (BuildContext context, int index) {
             return _newCard(index);
           }),
-      floatingActionButton: new FloatingActionButton(
-        onPressed: _askSortOrder,
-        tooltip: 'Vertaal',
-        child: new Icon(Icons.sort),
-      ),
+      floatingActionButton: _actionButtons(context),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
     );
   }
 
@@ -73,7 +71,6 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
               onTap: () {
                 _showTranslation(index);
               },
-              
               child: new Row(
                 children: <Widget>[
                   new Expanded(
@@ -109,7 +106,33 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
     );
   }
 
-  _deleteVertaling(int index) {
+  Row _actionButtons(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+        new FloatingActionButton(
+          onPressed: _sendEmail,
+          child: new Icon(Icons.email),
+          backgroundColor: Colors.amberAccent,
+          heroTag: null,
+        ),
+        new Container(
+          width: 20,
+        ),
+        new FloatingActionButton(
+          onPressed: _askSortOrder,
+          child: new Icon(Icons.send),
+          heroTag: null,
+        ),
+      ],
+    );
+  }
+
+  void _sendEmail() {
+    EmailService.sendEmail( "robin.bakkerus@gmail.com", "italy", _emailBodyText());
+  }
+
+  void _deleteVertaling(int index) {
     _db.deleteUsers(_vertalingen[index]);
     _vertalingen.remove(_vertalingen[index]);
     _screenUpdate();
@@ -186,5 +209,11 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
         _vertalingen = r;
       });
     });
+  }
+
+  String _emailBodyText() {
+    StringBuffer sb = new StringBuffer();
+    _vertalingen.forEach((f) => sb.write(f.words + ";" + f.translated + "\n"));
+    return sb.toString();
   }
 }
