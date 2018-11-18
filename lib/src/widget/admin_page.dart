@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../widget/main_appbar.dart';
 import '../model/settings.dart';
 import '../service/dbs_service.dart';
-import '../model/languages.dart';
+import '../data/constants.dart';
 
 
 class AdminPage extends StatelessWidget {
@@ -38,14 +38,14 @@ class _AdminFormState extends State<_AdminForm> {
   @override
   void initState() {
     _dropDownMenuItems = _getDropDownMenuItems();
-    _nativeLang = Settings.current.nativeLang;
-    _targetLang = Settings.current.targetLang;
+    _nativeLang = Constants.current.nativeLang;
+    _targetLang = Constants.current.targetLang;
     super.initState();
   }
 
   List<DropdownMenuItem<LangEnum>> _getDropDownMenuItems() {
      List<DropdownMenuItem<LangEnum>> items = new List();
-    Languages.LANG_SELECT_CB.forEach((k, v) =>
+    Constants.LANG_SELECT_CB.forEach((k, v) =>
         items.add(new DropdownMenuItem(value: k, child: new Text(v))));
     return items;
   }
@@ -112,7 +112,7 @@ class _AdminFormState extends State<_AdminForm> {
               onPressed: () {
                 if (_formKey.currentState.validate()) {
                   Settings settings =
-                      new Settings(_nativeLang, _targetLang, "", Settings.current.speaker);
+                      new Settings(_nativeLang, _targetLang, "");
                   _db.saveSettings(settings);
                   Scaffold.of(context).showSnackBar(
                       SnackBar(content: Text('Processing Data')));

@@ -1,8 +1,7 @@
 import 'dart:convert'; // for parsing JSON strings
 import 'package:http/http.dart' as http;
 
-import '../model/settings.dart';
-import '../model/languages.dart';
+import '../data/constants.dart';
 
 
 const oneSecond = Duration(seconds: 3);
@@ -12,6 +11,7 @@ const String URL =
 
 class VertaalService {
   static Future<String> vertaal(String text) async {
+    print(text + ".");
     var result = "?";
 
     var response = await http.get(
@@ -31,12 +31,12 @@ class VertaalService {
   }
 
   static String _makeUrl(String text) {
-    String url = URL.replaceAll("=nl", "=" + _lowerLang(Settings.current.nativeLang));
-    url = url.replaceAll("=it", "=" + _lowerLang(Settings.current.targetLang));
+    String url = URL.replaceAll("=nl", "=" + _lowerLang(Constants.current.nativeLang));
+    url = url.replaceAll("=it", "=" + _lowerLang(Constants.current.targetLang));
     return Uri.encodeFull(url.replaceAll("%s", text));
   }
 
   static String _lowerLang(LangEnum lang) {
-    return Languages.name(lang);
+    return Constants.langName(lang);
   }
 }

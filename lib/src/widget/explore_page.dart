@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widget/main_appbar.dart';
 import '../model/vertaling.dart';
-import '../model/settings.dart';
-import '../model/sort_order.dart';
+import '../data/constants.dart';
 import '../service/dbs_service.dart';
 import '../service/email_service.dart';
 
@@ -31,16 +30,17 @@ class _ExploreHomePage extends StatefulWidget {
 class _ExploreHomePageState extends State<_ExploreHomePage> {
   List<Vertaling> _vertalingen;
   DatabaseHelper _db = new DatabaseHelper();
-  List<DropdownMenuItem<String>> _dropDownMenuItems;
   Map<SortOrder, String> kv;
-  SortOrder _selcSortOrder = SortOrder.ID_ASC;
+  SortOrder _selcWhichWords = SortOrder.ALL_WORDS;
+  SortOrder _selcSortOrder = SortOrder.ID_DESC;
+  List<DropdownMenuItem<String>> _cbWhatItems;
+  List<DropdownMenuItem<String>> _cbHowToSortItems;
 
   @override
   void initState() {
     super.initState();
-
-    _dropDownMenuItems = _getDropDownMenuItems();
-
+    _cbWhatItems = _getCbWhatItems();
+    _cbHowToSortItems = _getCbHowToSortItems();
     var futList = _db.getVertalingen(SortOrder.ID_DESC);
     futList.then((r) {
       _vertalingen = r;
@@ -121,7 +121,7 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
         ),
         new FloatingActionButton(
           onPressed: _askSortOrder,
-          child: new Icon(Icons.send),
+          child: new Icon(Icons.sort),
           heroTag: null,
         ),
       ],
@@ -129,7 +129,8 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
   }
 
   void _sendEmail() {
-    EmailService.sendEmail( "robin.bakkerus@gmail.com", "italy", _emailBodyText());
+    EmailService.sendEmail(
+        "robin.bakkerus@gmail.com", "italy", _emailBodyText());
   }
 
   void _deleteVertaling(int index) {
@@ -139,7 +140,7 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
   }
 
   void _screenUpdate() {
-    print(Settings.current.targetLang);
+    print(Constants.current.targetLang);
     setState(() {});
   }
 
@@ -163,9 +164,16 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
     );
   }
 
-  List<DropdownMenuItem<String>> _getDropDownMenuItems() {
+  List<DropdownMenuItem<String>> _getCbWhatItems() {
     List<DropdownMenuItem<String>> items = new List();
-    SortUtils.SORTORDER_CB.forEach((k, v) =>
+    Constants.WORDS_WHICH_CB.forEach((k, v) =>
+        items.add(new DropdownMenuItem(value: v, child: new Text(v))));
+    return items;
+  }
+
+  List<DropdownMenuItem<String>> _getCbHowToSortItems() {
+    List<DropdownMenuItem<String>> items = new List();
+    Constants.WORDS_SORT_CB.forEach((k, v) =>
         items.add(new DropdownMenuItem(value: v, child: new Text(v))));
     return items;
   }
@@ -175,24 +183,41 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          title: new Text('Wat zien en hoe sorteren.'),
           actions: <Widget>[
-            new Text(''),
-            new DropdownButton<String>(
-              hint: new Text("Hoe te sorteren"),
-              value: SortUtils.SORTORDER_CB[_selcSortOrder],
-              onChanged: (String newVal) {
-                setState(() {
-                  _selcSortOrder = SortUtils.fromValue(newVal);
-                });
-              },
-              items: _dropDownMenuItems,
-            ),
-            new FlatButton(
-              child: new Text("Close"),
-              onPressed: () {
-                _doSort();
-                Navigator.of(context).pop();
-              },
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                new DropdownButton<String>(
+                  hint: new Text("Wat wil je zien"),
+                  value: Constants.WORDS_WHICH_CB [_selcWhichWords],
+                  onChanged: (String newVal) {
+                    setState(() {
+                       _selcWhichWords = Constants.fromSortOrderValue(newVal);
+                      Constants.whichWords = _selcWhichWords;
+                    });
+                  },
+                  items: _cbWhatItems,
+                ),
+                new DropdownButton<String>(
+                  hint: new Text("Hoe te sorteren"),
+                  value: Constants.WORDS_SORT_CB[_selcSortOrder],
+                  onChanged: (String newVal) {
+                    setState(() {
+                       _selcSortOrder = Constants.fromSortOrderValue(newVal);
+                      Constants.sortOrder = _selcSortOrder;
+                    });
+                  },
+                  items: _cbHowToSortItems,
+                ),
+                new FlatButton(
+                  child: new Text("Close"),
+                  onPressed: () {
+                    _doSort();
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
             ),
           ],
         );

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widget/main_appbar.dart';
-import '../model/languages.dart';
-import '../model/settings.dart';
+import '../data/constants.dart';
 
 class StartPage extends StatelessWidget {
   @override
@@ -30,7 +29,7 @@ class _HomePageState extends State<_HomePage> {
   @override
   void initState() {
     super.initState();
-    String lowerlang = Languages.name(Settings.current.targetLang).toLowerCase();
+    String lowerlang = Constants.langName(Constants.current.targetLang).toLowerCase();
     _image = 'images/logo_' + lowerlang + ".jpg";
   }
 

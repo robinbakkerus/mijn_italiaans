@@ -3,8 +3,7 @@ import 'home_page.dart';
 import 'vertaal_page.dart';
 import 'explore_page.dart';
 import 'admin_page.dart';
-import '../model/settings.dart';
-import '../model/languages.dart';
+import '../data/constants.dart';
 
 class Choice {
   const Choice({this.title, this.icon});
@@ -54,7 +53,7 @@ AppBar buildMainAppBar(BuildContext context, int disableButton) {
   }
 
   return new AppBar(
-    title: new Text(Languages.name(Settings.current.nativeLang) + "->" + Languages.name(Settings.current.targetLang)),
+    title: new Text(Constants.langName(Constants.current.nativeLang) + "->" + Constants.langName(Constants.current.targetLang)),
     actions: <Widget>[
       _buildButton(0),
       _buildButton(1),

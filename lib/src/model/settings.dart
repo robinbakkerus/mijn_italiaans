@@ -1,14 +1,12 @@
-import 'languages.dart';
+import '../data/constants.dart';
 
 class Settings {
-
   int id;
   LangEnum _nativeLang;
   LangEnum _targetLang;
   String _emailAdress;
-  bool _speaker;
 
-  Settings(this._nativeLang, this._targetLang, this._emailAdress, this._speaker);
+  Settings(this._nativeLang, this._targetLang, this._emailAdress);
 
   Settings.map(dynamic obj) {
     this._nativeLang = obj["native_lang"];
@@ -19,17 +17,14 @@ class Settings {
   LangEnum get nativeLang => _nativeLang;
   LangEnum get targetLang => _targetLang;
   String get emailAddress => _emailAdress;
-  bool get speaker => _speaker;
-  set speaker(bool value) => _speaker = !_speaker;
 
   Map<String, dynamic> toMap() {
     var map = new Map<String, dynamic>();
-    map["native_lang"] = Languages.name(_nativeLang);
-    map["target_lang"] = Languages.name(_targetLang);
+    map["native_lang"] = Constants.langName(_nativeLang);
+    map["target_lang"] = Constants.langName(_targetLang);
     map["email_address"] = _emailAdress;
     return map;
   }
 
-  //TODO uit dbs halen.
-  static Settings current = new Settings(LangEnum.NL, LangEnum.IT, "", true);
+  
 }

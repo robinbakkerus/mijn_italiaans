@@ -5,8 +5,7 @@ import 'package:sqflite/sqflite.dart';
 
 import '../model/vertaling.dart';
 import '../model/settings.dart';
-import '../model/sort_order.dart';
-import '../model/languages.dart';
+import '../data/constants.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = new DatabaseHelper.internal();
@@ -49,7 +48,7 @@ class DatabaseHelper {
 
   Future<List<Vertaling>> getVertalingen(SortOrder sortOrder) async {
     var dbClient = await db;
-    String qry = 'SELECT * FROM Vertaling ' + SortUtils.SORTORDER_SQL[sortOrder];
+    String qry = Constants.selectQuerySql();
     print(qry);
     List<Map> list = await dbClient.rawQuery(qry);
     List<Vertaling> vertalingen = new List();
@@ -65,12 +64,9 @@ class DatabaseHelper {
 
   Future<List<Vertaling>> getVertalingById(int id) async {
     var dbClient = await db;
-    String qry = 'SELECT * FROM Vertaling WHERE id=\'' +
-        id.toString() +
-        '\'' +
-        ' AND lang=\'' +
-        Languages.name(Settings.current.targetLang) +
-        '\'';
+    String qry = '''
+      SELECT * FROM Vertaling WHERE id=' ${id.toString()}' 
+    ''';
     print(qry);
     List<Map> list = await dbClient.rawQuery(qry);
     List<Vertaling> vertalingen = new List();
@@ -105,7 +101,7 @@ class DatabaseHelper {
   Future<int> saveSettings(Settings settings) async {
     var dbClient = await db;
     int res = await dbClient.insert("Vertaling_Settings", settings.toMap());
-    Settings.current = settings;
+    Constants.current = settings;
     return res;
   }
 
@@ -115,11 +111,11 @@ class DatabaseHelper {
         await dbClient.rawQuery('SELECT * FROM Vertaling_Settings');
     if (list.length > 0) {
       Settings settings = new Settings(list[0]["native_lang"],
-          list[0]["target_lang"], list[0]["email_address"], true);
+          list[0]["target_lang"], list[0]["email_address"]);
       print(settings);
       return settings;
     } else {
-      return new Settings(LangEnum.NL, LangEnum.IT, "robin.bakkerus@gmail.com", true);
+      return new Settings(LangEnum.NL, LangEnum.IT, "robin.bakkerus@gmail.com");
     }
   }
 }

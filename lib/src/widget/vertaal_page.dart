@@ -4,8 +4,7 @@ import '../widget/main_appbar.dart';
 import '../service/dbs_service.dart';
 import '../service/flutter_tts_service.dart';
 import '../model/vertaling.dart';
-import '../model/settings.dart';
-import '../model/languages.dart';
+import '../data/constants.dart';
 
 class VertaalPage extends StatelessWidget {
   @override
@@ -71,10 +70,10 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
     _loaderIsActive = false;
 
     _doTextToSpeach();
-    
+
     // save to dbs
-    Vertaling v = new Vertaling(
-        _myTextCtrl.text, _translation, Languages.LANG_SELECT_CB[Settings.current.targetLang]);
+    Vertaling v = new Vertaling(_myTextCtrl.text.trim(), _translation,
+        Constants.langName(Constants.current.targetLang));
     _db.saveVertaling(v);
     _screenUpdate();
   }
@@ -92,12 +91,14 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
 
   void _toggleSpeaker() {
     setState(() {
-          Settings.current.speaker = !Settings.current.speaker;
-        });
+      Constants.speaker = !Constants.speaker;
+    });
   }
 
   void _doTextToSpeach() {
-    if (Settings.current.speaker)  tts.speak(_translation);
+    if (Constants.speaker) {
+      tts.speak(_translation);
+    }
   }
 
   @override
@@ -134,7 +135,7 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
       //       child: new Icon(Icons.send),
       //       heroTag: null,
       //     ),
-        // ],
+      // ],
       // ),
     );
   }
@@ -142,7 +143,7 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
   Row _actionButtons(BuildContext context) {
     return Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
       IconButton(
-        icon: Icon(Settings.current.speaker ? Icons.surround_sound : null),
+        icon: Icon(Constants.speaker ? Icons.surround_sound : null),
         onPressed: _doTextToSpeach,
         tooltip: 'Opnieuw uitspreken',
       ),
@@ -150,7 +151,8 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
         width: 20,
       ),
       IconButton(
-        icon: Icon( Settings.current.speaker ? Icons.speaker_notes_off : Icons.speaker_notes),
+        icon: Icon(
+            Constants.speaker ? Icons.speaker_notes_off : Icons.speaker_notes),
         onPressed: _toggleSpeaker,
         tooltip: 'Speaker',
       ),

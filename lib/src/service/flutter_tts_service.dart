@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter_tts/flutter_tts.dart';
-import '../model/settings.dart';
-import '../model/languages.dart';
+import '../data/constants.dart';
 
 enum TtsState { playing, stopped }
 
@@ -39,6 +38,8 @@ class TextToSpeech {
     flutterTts.setErrorHandler((msg) {
         ttsState = TtsState.stopped;
     });
+
+    flutterTts.setVolume(1.0);
   }
 
   Future speak(String text) async {
@@ -64,7 +65,7 @@ class TextToSpeech {
   }
 
   void _setLang() {
-    String l = Languages.LANG_ISO[Settings.current.targetLang];
+    String l = Constants.LANG_ISO[Constants.current.targetLang];
     flutterTts.setLanguage(l);
   }
 
