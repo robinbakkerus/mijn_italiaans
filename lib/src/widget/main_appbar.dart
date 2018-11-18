@@ -53,7 +53,7 @@ AppBar buildMainAppBar(BuildContext context, int disableButton) {
   }
 
   return new AppBar(
-    title: new Text(Constants.langName(Constants.current.nativeLang) + "->" + Constants.langName(Constants.current.targetLang)),
+    title: new Text(Constants.toLangName(Constants.current.nativeLang) + "->" + Constants.toLangName(Constants.current.targetLang)),
     actions: <Widget>[
       _buildButton(0),
       _buildButton(1),

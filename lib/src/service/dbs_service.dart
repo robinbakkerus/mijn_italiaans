@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -48,7 +49,7 @@ class DatabaseHelper {
 
   Future<List<Vertaling>> getVertalingen(SortOrder sortOrder) async {
     var dbClient = await db;
-    String qry = Constants.selectQuerySql();
+    String qry = _selectQuerySql();
     print(qry);
     List<Map> list = await dbClient.rawQuery(qry);
     List<Vertaling> vertalingen = new List();
@@ -59,8 +60,19 @@ class DatabaseHelper {
       vertalingen.add(vertaling);
     }
     print(vertalingen.length);
+    if (Constants.sortOrder == SortOrder.RANDOM) {
+      vertalingen.shuffle();
+    }
     return vertalingen;
   }
+
+  // List<Vertaling> _randomize(List<Vertaling> vertalingen) {
+  //   var map = new HashMap();
+  //   vertalingen.forEach((f) => map[f.id] = f);
+  //   List<Vertaling> res = new List<Vertaling>();
+  //   map.forEach((k,v) => res.add(v));
+  //   return res;
+  // }
 
   Future<List<Vertaling>> getVertalingById(int id) async {
     var dbClient = await db;
@@ -118,4 +130,25 @@ class DatabaseHelper {
       return new Settings(LangEnum.NL, LangEnum.IT, "robin.bakkerus@gmail.com");
     }
   }
+
+  String _selectQuerySql() {
+    StringBuffer sb = new StringBuffer();
+    String lang = Constants.toLangName(Constants.current.targetLang);
+    if (Constants.whichWords == WhichWords.ALL_WORDS) {
+      sb.write("SELECT * FROM Vertaling WHERE lang='$lang' ");
+    } else if (Constants.whichWords == WhichWords.WORDS_ONLY) {
+      sb.write("SELECT * FROM Vertaling WHERE lang='$lang' AND words NOT LIKE '% %' ");
+    } else if (Constants.whichWords == WhichWords.SENTENCE_ONLY) {
+      sb.write("SELECT * FROM Vertaling WHERE lang='$lang' AND words LIKE '% %' ");
+    } else if (Constants.whichWords == WhichWords.ANY) {
+      sb.write("SELECT * FROM Vertaling ");
+    }
+    if (Constants.sortOrder == SortOrder.ID_ASC) {
+       sb.write(" ORDER BY id ASC");
+    } else if (Constants.sortOrder == SortOrder.ID_DESC) {
+       sb.write(" ORDER BY id DESC");
+    } 
+    return sb.toString();
+  }
+
 }

@@ -31,7 +31,7 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
   List<Vertaling> _vertalingen;
   DatabaseHelper _db = new DatabaseHelper();
   Map<SortOrder, String> kv;
-  SortOrder _selcWhichWords = SortOrder.ALL_WORDS;
+  WhichWords _selcWhichWords = WhichWords.ALL_WORDS;
   SortOrder _selcSortOrder = SortOrder.ID_DESC;
   List<DropdownMenuItem<String>> _cbWhatItems;
   List<DropdownMenuItem<String>> _cbHowToSortItems;
@@ -193,7 +193,7 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
                   value: Constants.WORDS_WHICH_CB [_selcWhichWords],
                   onChanged: (String newVal) {
                     setState(() {
-                       _selcWhichWords = Constants.fromSortOrderValue(newVal);
+                       _selcWhichWords = Constants.toWhichWords(newVal);
                       Constants.whichWords = _selcWhichWords;
                     });
                   },
@@ -204,7 +204,7 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
                   value: Constants.WORDS_SORT_CB[_selcSortOrder],
                   onChanged: (String newVal) {
                     setState(() {
-                       _selcSortOrder = Constants.fromSortOrderValue(newVal);
+                       _selcSortOrder = Constants.toSortOrder(newVal);
                       Constants.sortOrder = _selcSortOrder;
                     });
                   },

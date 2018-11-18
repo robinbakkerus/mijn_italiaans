@@ -20,8 +20,8 @@ class Settings {
 
   Map<String, dynamic> toMap() {
     var map = new Map<String, dynamic>();
-    map["native_lang"] = Constants.langName(_nativeLang);
-    map["target_lang"] = Constants.langName(_targetLang);
+    map["native_lang"] = Constants.toLangName(_nativeLang);
+    map["target_lang"] = Constants.toLangName(_targetLang);
     map["email_address"] = _emailAdress;
     return map;
   }

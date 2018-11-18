@@ -30,29 +30,48 @@ class VertaalHomePage extends StatefulWidget {
 //------------------------------------------------------------
 
 class _VertaalHomePageState extends State<VertaalHomePage> {
-  bool _loaderIsActive = false;
   final _myTextCtrl = TextEditingController();
   String _translation = "...";
   String _lastWords = "";
   final TextToSpeech tts = new TextToSpeech();
   DatabaseHelper _db = new DatabaseHelper();
   FocusNode _focusNode = new FocusNode();
+  bool _loaderIsActive = false;
+  bool _showUndo = false;
+  bool _showSend = false;
 
   @override
   void initState() {
     super.initState();
     _focusNode.addListener(_focusChanged);
+    _myTextCtrl.addListener(_myTextCtrlListener);
   }
 
   void _focusChanged() {
     if (_focusNode.hasFocus) {
       _myTextCtrl.text = "";
+      _translation = "";
+      if (Constants.speaker) _showUndo = true;
+      _screenUpdate();
+    }
+  }
+
+  void _myTextCtrlListener() {
+    if (_myTextCtrl.text.length > 0 && !_showSend) {
+        _showSend = true;
+         _screenUpdate();
+    } else if (_myTextCtrl.text.length == 0 && _showSend) {
+        _showSend = false;
+        _showUndo = false;
+        _screenUpdate();
     }
   }
 
   void _vertaal() async {
     _translation = "";
     _loaderIsActive = true;
+    _showSend = false;
+    if (Constants.speaker) _showUndo = true;
     _screenUpdate();
     _focusNode.unfocus();
     _lastWords = _myTextCtrl.text;
@@ -61,8 +80,12 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
     response.then((response) => _handleVertaling(response));
   }
 
-  void _restoreText() {
-    _myTextCtrl.text = _lastWords;
+  void _restoreTextOrReplaySound() {
+    if (_translation.length > 0) {
+      _doTextToSpeach();
+    } else {
+      _myTextCtrl.text = _lastWords;
+    }
   }
 
   void _handleVertaling(var response) {
@@ -73,7 +96,7 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
 
     // save to dbs
     Vertaling v = new Vertaling(_myTextCtrl.text.trim(), _translation,
-        Constants.langName(Constants.current.targetLang));
+        Constants.toLangName(Constants.current.targetLang));
     _db.saveVertaling(v);
     _screenUpdate();
   }
@@ -90,9 +113,9 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
   }
 
   void _toggleSpeaker() {
-    setState(() {
       Constants.speaker = !Constants.speaker;
-    });
+      _showUndo = Constants.speaker;
+      _screenUpdate();
   }
 
   void _doTextToSpeach() {
@@ -142,34 +165,36 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
 
   Row _actionButtons(BuildContext context) {
     return Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
-      IconButton(
-        icon: Icon(Constants.speaker ? Icons.surround_sound : null),
-        onPressed: _doTextToSpeach,
-        tooltip: 'Opnieuw uitspreken',
-      ),
+      // IconButton(
+      //   icon: Icon(Constants.speaker ? Icons.surround_sound : null),
+      //   onPressed: _doTextToSpeach,
+      //   color: Colors.lightBlue,
+      // ),
       Container(
         width: 20,
       ),
       IconButton(
         icon: Icon(
-            Constants.speaker ? Icons.speaker_notes_off : Icons.speaker_notes),
+          Constants.speaker ? Icons.volume_up : Icons.volume_off,
+        ),
         onPressed: _toggleSpeaker,
-        tooltip: 'Speaker',
+        color: Colors.lightBlue,
       ),
       Container(
         width: 20,
       ),
       IconButton(
         icon: Icon(Icons.undo),
-        onPressed: _restoreText,
+        onPressed: _showUndo ? _restoreTextOrReplaySound : null,
+        color: Colors.lightBlue,
       ),
       Container(
         width: 20,
       ),
       IconButton(
         icon: Icon(Icons.send),
-        onPressed: _vertaal,
-        tooltip: 'Vertaal',
+        onPressed: _showSend ? _vertaal : null,
+        color: Colors.lightBlue,
       ),
     ]);
   }

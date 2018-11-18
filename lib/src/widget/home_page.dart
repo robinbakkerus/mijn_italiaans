@@ -29,7 +29,7 @@ class _HomePageState extends State<_HomePage> {
   @override
   void initState() {
     super.initState();
-    String lowerlang = Constants.langName(Constants.current.targetLang).toLowerCase();
+    String lowerlang = Constants.toLangName(Constants.current.targetLang).toLowerCase();
     _image = 'images/logo_' + lowerlang + ".jpg";
   }
 

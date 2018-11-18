@@ -37,6 +37,6 @@ class VertaalService {
   }
 
   static String _lowerLang(LangEnum lang) {
-    return Constants.langName(lang);
+    return Constants.toLangName(lang);
   }
 }
