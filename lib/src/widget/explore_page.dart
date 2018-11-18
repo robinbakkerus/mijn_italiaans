@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../widget/main_appbar.dart';
 import '../model/vertaling.dart';
 import '../data/constants.dart';
@@ -53,11 +54,29 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: buildMainAppBar(context, 2),
-      body: new ListView.builder(
-          itemCount: _vertalingen == null ? 0 : _vertalingen.length,
-          itemBuilder: (BuildContext context, int index) {
-            return _newCard(index);
-          }),
+      body: ListView.builder(
+        itemCount: _vertalingen == null ? 0 : _vertalingen.length,
+        // itemBuilder: (BuildContext context, int index) {
+        //   return _newCard(index);
+        // }),
+        itemBuilder: (context, index) {
+          final Card item = _newCard(index);
+          return Dismissible(
+            key: Key(item.toString()),
+            onDismissed: (direction) {
+              setState(() {
+                 _db.deleteUsers(_vertalingen[index]);
+                 _vertalingen.remove(_vertalingen[index]);
+              });
+
+              Scaffold.of(context)
+                  .showSnackBar(SnackBar(content: Text("$item dismissed")));
+            },
+            background: Container(color: Colors.red),
+            child: item,
+          );
+        },
+      ),
       floatingActionButton: _actionButtons(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
     );
@@ -190,10 +209,10 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
               children: <Widget>[
                 new DropdownButton<String>(
                   hint: new Text("Wat wil je zien"),
-                  value: Constants.WORDS_WHICH_CB [_selcWhichWords],
+                  value: Constants.WORDS_WHICH_CB[_selcWhichWords],
                   onChanged: (String newVal) {
                     setState(() {
-                       _selcWhichWords = Constants.toWhichWords(newVal);
+                      _selcWhichWords = Constants.toWhichWords(newVal);
                       Constants.whichWords = _selcWhichWords;
                     });
                   },
@@ -204,7 +223,7 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
                   value: Constants.WORDS_SORT_CB[_selcSortOrder],
                   onChanged: (String newVal) {
                     setState(() {
-                       _selcSortOrder = Constants.toSortOrder(newVal);
+                      _selcSortOrder = Constants.toSortOrder(newVal);
                       Constants.sortOrder = _selcSortOrder;
                     });
                   },
