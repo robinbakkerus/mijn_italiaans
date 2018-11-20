@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -65,14 +64,6 @@ class DatabaseHelper {
     }
     return vertalingen;
   }
-
-  // List<Vertaling> _randomize(List<Vertaling> vertalingen) {
-  //   var map = new HashMap();
-  //   vertalingen.forEach((f) => map[f.id] = f);
-  //   List<Vertaling> res = new List<Vertaling>();
-  //   map.forEach((k,v) => res.add(v));
-  //   return res;
-  // }
 
   Future<List<Vertaling>> getVertalingById(int id) async {
     var dbClient = await db;

@@ -3,6 +3,7 @@ import '../service/vertaal_service.dart';
 import '../widget/main_appbar.dart';
 import '../service/dbs_service.dart';
 import '../service/flutter_tts_service.dart';
+import '../service/vertaal_intf.dart';
 import '../model/vertaling.dart';
 import '../data/constants.dart';
 
@@ -30,12 +31,15 @@ class VertaalHomePage extends StatefulWidget {
 //------------------------------------------------------------
 
 class _VertaalHomePageState extends State<VertaalHomePage> {
+
+  final TextToSpeech tts = new TextToSpeech();
+  final DatabaseHelper _db = new DatabaseHelper();
+  final IVertaalService _vertaalSrv = new IVertaalService();  
   final _myTextCtrl = TextEditingController();
+  FocusNode _focusNode = new FocusNode();
+
   String _translation = "...";
   String _lastWords = "";
-  final TextToSpeech tts = new TextToSpeech();
-  DatabaseHelper _db = new DatabaseHelper();
-  FocusNode _focusNode = new FocusNode();
   bool _loaderIsActive = false;
   bool _showUndo = false;
   bool _showSend = false;
@@ -76,7 +80,7 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
     _focusNode.unfocus();
     _lastWords = _myTextCtrl.text;
     String txt = _myTextCtrl.text.trim();
-    var response = VertaalService.vertaal(txt);
+    var response = _vertaalSrv.vertaal(txt);
     response.then((response) => _handleVertaling(response));
   }
 
@@ -165,11 +169,6 @@ class _VertaalHomePageState extends State<VertaalHomePage> {
 
   Row _actionButtons(BuildContext context) {
     return Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
-      // IconButton(
-      //   icon: Icon(Constants.speaker ? Icons.surround_sound : null),
-      //   onPressed: _doTextToSpeach,
-      //   color: Colors.lightBlue,
-      // ),
       Container(
         width: 20,
       ),

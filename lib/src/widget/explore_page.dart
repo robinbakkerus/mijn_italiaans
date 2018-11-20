@@ -1,10 +1,12 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import '../widget/main_appbar.dart';
-import '../model/vertaling.dart';
+import 'package:flutter/material.dart';
+
 import '../data/constants.dart';
+import '../model/vertaling.dart';
 import '../service/dbs_service.dart';
 import '../service/email_service.dart';
+import '../service/flutter_tts_service.dart';
+import '../widget/main_appbar.dart';
 
 class ExplorePage extends StatelessWidget {
   @override
@@ -30,12 +32,13 @@ class _ExploreHomePage extends StatefulWidget {
 
 class _ExploreHomePageState extends State<_ExploreHomePage> {
   List<Vertaling> _vertalingen;
-  DatabaseHelper _db = new DatabaseHelper();
+  final _db = new DatabaseHelper();
   Map<SortOrder, String> kv;
   WhichWords _selcWhichWords = WhichWords.ALL_WORDS;
   SortOrder _selcSortOrder = SortOrder.ID_DESC;
   List<DropdownMenuItem<String>> _cbWhatItems;
   List<DropdownMenuItem<String>> _cbHowToSortItems;
+  final _tts = new TextToSpeech();
 
   @override
   void initState() {
@@ -50,23 +53,33 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
     });
   }
 
+  List<DropdownMenuItem<String>> _getCbWhatItems() {
+    List<DropdownMenuItem<String>> items = new List();
+    Constants.WORDS_WHICH_CB.forEach((k, v) =>
+        items.add(new DropdownMenuItem(value: v, child: new Text(v))));
+    return items;
+  }
+
+  List<DropdownMenuItem<String>> _getCbHowToSortItems() {
+    List<DropdownMenuItem<String>> items = new List();
+    Constants.WORDS_SORT_CB.forEach((k, v) =>
+        items.add(new DropdownMenuItem(value: v, child: new Text(v))));
+    return items;
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: buildMainAppBar(context, 2),
       body: ListView.builder(
         itemCount: _vertalingen == null ? 0 : _vertalingen.length,
-        // itemBuilder: (BuildContext context, int index) {
-        //   return _newCard(index);
-        // }),
         itemBuilder: (context, index) {
           final Card item = _newCard(index);
           return Dismissible(
-            key: Key(item.toString()),
+            key: Key(_vertalingen[index].id.toString()),
             onDismissed: (direction) {
               setState(() {
-                 _db.deleteUsers(_vertalingen[index]);
-                 _vertalingen.remove(_vertalingen[index]);
+                _deleteVertaling(index);
               });
 
               Scaffold.of(context)
@@ -84,6 +97,7 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
 
   Card _newCard(int index) {
     return new Card(
+      key: new Key(_vertalingen[index].id.toString()),
       child: new Container(
           child: new Center(
             child: GestureDetector(
@@ -107,16 +121,6 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
                       ),
                     ),
                   ),
-                  new Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      new IconButton(
-                        icon: const Icon(Icons.delete_forever,
-                            color: const Color(0xFF167F67)),
-                        onPressed: () => _deleteVertaling(index),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
@@ -133,6 +137,14 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
           onPressed: _sendEmail,
           child: new Icon(Icons.email),
           backgroundColor: Colors.amberAccent,
+          heroTag: null,
+        ),
+        new Container(
+          width: 20,
+        ),
+        new FloatingActionButton(
+          onPressed: _toggleSpeaker,
+          child: Constants.speaker ? Icon(Icons.volume_up) : Icon(Icons.volume_off),
           heroTag: null,
         ),
         new Container(
@@ -159,7 +171,6 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
   }
 
   void _screenUpdate() {
-    print(Constants.current.targetLang);
     setState(() {});
   }
 
@@ -171,6 +182,15 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
         return AlertDialog(
           title: new Text(str),
           actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.undo),
+              onPressed: Constants.speaker
+                  ? () {
+                      _doTextToSpeach(str);
+                    }
+                  : null,
+              color: Colors.lightBlue,
+            ),
             new FlatButton(
               child: new Text("Close"),
               onPressed: () {
@@ -181,20 +201,6 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
         );
       },
     );
-  }
-
-  List<DropdownMenuItem<String>> _getCbWhatItems() {
-    List<DropdownMenuItem<String>> items = new List();
-    Constants.WORDS_WHICH_CB.forEach((k, v) =>
-        items.add(new DropdownMenuItem(value: v, child: new Text(v))));
-    return items;
-  }
-
-  List<DropdownMenuItem<String>> _getCbHowToSortItems() {
-    List<DropdownMenuItem<String>> items = new List();
-    Constants.WORDS_SORT_CB.forEach((k, v) =>
-        items.add(new DropdownMenuItem(value: v, child: new Text(v))));
-    return items;
   }
 
   void _askSortOrder() {
@@ -232,7 +238,7 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
                 new FlatButton(
                   child: new Text("Close"),
                   onPressed: () {
-                    _doSort();
+                    _readTranslations();
                     Navigator.of(context).pop();
                   },
                 ),
@@ -244,9 +250,8 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
     );
   }
 
-  void _doSort() {
+  void _readTranslations() {
     var futList = _db.getVertalingen(_selcSortOrder);
-    print(_selcSortOrder.toString());
     futList.then((r) {
       print("gevonden " + _vertalingen.length.toString());
       setState(() {
@@ -259,5 +264,17 @@ class _ExploreHomePageState extends State<_ExploreHomePage> {
     StringBuffer sb = new StringBuffer();
     _vertalingen.forEach((f) => sb.write(f.words + ";" + f.translated + "\n"));
     return sb.toString();
+  }
+
+  void _doTextToSpeach(String str) {
+    if (Constants.speaker) {
+      _tts.speak(str);
+    }
+  }
+
+  void _toggleSpeaker() {
+    setState(() {
+      Constants.speaker = !Constants.speaker;
+    });
   }
 }

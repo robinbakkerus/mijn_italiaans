@@ -4,30 +4,34 @@ import 'package:http/http.dart' as http;
 import '../data/constants.dart';
 import 'vertaal_intf.dart';
 
-const oneSecond = Duration(milliseconds: 100);
+const oneSecond = Duration(seconds: 1);
 
 const String URL =
-    'https://translate.googleapis.com/translate_a/single?client=gtx&sl=nl&tl=it&dt=t&q=%s';
+    'https://translation.googleapis.com/language/translate/v2';
 
-class VertaalService implements IVertaalService {
-  
+class VertaalServiceV2 implements IVertaalService {
+
+  static const API_KEY = "ya29.c.ElpaBiHdq-QgO6QrIrCp8LELowrovYc9N-qiRRhTcgkEVUsSgAZkSO_uydNXq7shsn-y_YieJpmmQLbrgGeQlaKGXMqXuu8rsYlg-3OBxW8hyGzhoyMhCeabkwg";
+
   @override
   Future<String> vertaal(String text) async {
     print(text + ".");
     var result = "?";
 
-    var response = await http.get(
+    var response = await http.post(
       _makeUrl(text),
-      headers: {"Accept": "application/json"},
+      body: _getBody(text),
+      headers: {"Authorization": "Bearer " + API_KEY},
     );
 
     if (response.statusCode == 200) {
       String responseBody = response.body;
       var responseJSON = json.decode(responseBody);
       print(responseJSON);
-      result = responseJSON[0][0][0];
+      result = responseJSON.data.translations[0].translatedText;
+      print(result);
     } else {
-      print('Something went wrong. \nResponse Code : ${response.statusCode}');
+      print('Something went wrong. \nResponse Code : ${response.body}');
     }
     return Future.delayed(oneSecond, () => result);
   }
@@ -36,6 +40,16 @@ class VertaalService implements IVertaalService {
     String url = URL.replaceAll("=nl", "=" + _lowerLang(Constants.current.nativeLang));
     url = url.replaceAll("=it", "=" + _lowerLang(Constants.current.targetLang));
     return Uri.encodeFull(url.replaceAll("%s", text));
+  }
+
+  String _getBody(String text) {
+    return '''
+    {
+  'q': '$text',
+  'source' : 'nl',
+  'target': 'it'
+}
+    ''';
   }
 
   String _lowerLang(LangEnum lang) {
